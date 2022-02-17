@@ -55,7 +55,7 @@ def get_resources():
         new_images = [a.get('src') for a in soup.findAll("img")]
         images.extend(new_images)
         
-        new_images_links = list(set(filter(lambda url: url.lower().split(".")[-1] in ['jpg', 'jpeg', 'png', 'gif', 'tiff'],  [a.get('href') for a in soup.findAll("a")])))
+        new_images_links = list(set(filter(lambda url: url != None and url.lower().split(".")[-1] in ['jpg', 'jpeg', 'png', 'gif', 'tiff'],  [a.get('href') for a in soup.findAll("a")])))
         images.extend(new_images_links)
 
         for link in links:
