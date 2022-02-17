@@ -69,5 +69,4 @@ def get_resources():
     ## For each PDF and image.. OCR them if they say contain menu and combine them 
 
 if __name__ == "__main__":
-    from waitress import serve
-    serve(app, host="0.0.0.0", port=8080)
+    app.run()
