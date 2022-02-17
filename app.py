@@ -14,6 +14,10 @@ CORS(app, resources={r"*": {"origins": "*"}})
 def check():
     return json.dumps({})
 
+headers = { 
+    "User-Agent": "Mozilla/5.0" 
+}
+
 @app.route("/get_resources", methods = ['GET'])
 def get_resources():
     url = request.args.get("url") 
@@ -31,7 +35,7 @@ def get_resources():
         visited.add(url)
         
         try:
-            page = requests.get(url)
+            page = requests.get(url, headers=headers)
         except:
             return
 
