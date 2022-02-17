@@ -52,7 +52,7 @@ def get_resources():
         new_pdfs = list(set(filter(lambda url: url is not None and ".pdf" in url, new_pdfs)))
         pdfs.extend(new_pdfs)
         
-        new_images = [a.get('src') for a in soup.findAll("img")]
+        new_images = list(set(filter(lambda url: url != None and "http" in url, [a.get('src') for a in soup.findAll("img")])))
         images.extend(new_images)
         
         new_images_links = list(set(filter(lambda url: url != None and url.lower().split(".")[-1] in ['jpg', 'jpeg', 'png', 'gif', 'tiff'],  [a.get('href') for a in soup.findAll("a")])))
