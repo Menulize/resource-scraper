@@ -5,7 +5,7 @@ Will be very useful when used in combination with OCR to determine if we have in
 
 ## Sample usage
 ```
-curl http://localhost:8080/get_resources?url=https://firehousepb.com/ 
+curl http://resource-scraper.herokuapp.com//get_resources?url=https://firehousepb.com/ 
 ```
 ### output
 {

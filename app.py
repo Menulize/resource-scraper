@@ -17,7 +17,7 @@ def check():
 @app.route("/get_resources", methods = ['GET'])
 def get_resources():
     url = request.args.get("url") 
-    max_crawl_depth = request.args.get("max_crawl_depth", default=3)
+    max_crawl_depth = request.args.get("max_crawl_depth", default=2)
 
     visited = set()
     pdfs = []
