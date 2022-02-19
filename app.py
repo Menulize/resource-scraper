@@ -31,6 +31,24 @@ def get_resources():
     def clean_url(url):
         return url.split("#")[0]
 
+    def make_absolute(resource_url, url):
+        hostname = url.split("//")[1].split("/")[0] 
+        link = resource_url
+        relative = False
+        if resource_url[0] == "/":
+            link = hostname + link
+            relative = True
+        elif resource_url[:2] == "./":
+            link = hostname + "/" + link[2:]
+            relative = True
+        if relative:
+            if 'https' in url:
+                link = 'https://' + link
+            else:
+                link = 'http://' + link
+        return link
+
+
     def crawl(url, depth):
         if clean_url(url) in visited:
             return
@@ -58,13 +76,14 @@ def get_resources():
                         ".htm" in url or 
                         ".php" in url), links)))
         new_pdfs = [a.get('href') for a in soup.findAll("a")]
-        new_pdfs = list(set(filter(lambda url: url is not None and ".pdf" in url, new_pdfs)))
+        new_pdfs = map(lambda pdf: make_absolute(pdf, url), list(set(filter(lambda url: url is not None and ".pdf" in url, new_pdfs))))
         pdfs.extend(new_pdfs)
         
-        new_images = list(set(filter(lambda url: url != None and ("http" in url or "/" == url[0] or "./" == url[:2]), [a.get('src') for a in soup.findAll("img")])))
+        new_images = map(lambda img: make_absolute(img, url), list(set(filter(lambda url: url != None and ("http" in url or "/" == url[0] or "./" == url[:2]), [a.get('src') for a in soup.findAll("img")]))))
+        
         images.extend(new_images)
         
-        new_images_links = list(set(filter(lambda url: url != None and url.lower().split(".")[-1] in ['jpg', 'jpeg', 'png', 'gif', 'tiff'],  [a.get('href') for a in soup.findAll("a")])))
+        new_images_links = map(lambda img: make_absolute(img, url), list(set(filter(lambda url: url != None and url.lower().split(".")[-1] in ['jpg', 'jpeg', 'png', 'gif', 'tiff'],  [a.get('href') for a in soup.findAll("a")]))))
         images.extend(new_images_links)
 
         # Scrape all the text on the page
@@ -77,19 +96,7 @@ def get_resources():
         pages.append({ "text": text, "url": url })
 
         for link in links:
-            relative = False
-            if link[0] == "/":
-                link = hostname + link
-                relative = True
-            elif link[:2] == "./":
-                link = hostname + "/" + link[2:]
-                relative = True
-            if relative:
-                if 'https' in url:
-                    link = 'https://' + link
-                else:
-                    link = 'http://' + link
-
+            link = make_absolute(link, url)
             crawl(link, depth + 1)
     crawl(url, 0)
     
