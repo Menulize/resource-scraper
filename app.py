@@ -26,13 +26,18 @@ def get_resources():
     visited = set()
     pdfs = []
     images = []
+    pages = []
+    
+    def clean_url(url):
+        return url.split("#")[0]
+
     def crawl(url, depth):
-        if url in visited:
+        if clean_url(url) in visited:
             return
         if depth > max_crawl_depth:
             return
 
-        visited.add(url)
+        visited.add(clean_url(url))
         
         try:
             page = requests.get(url, headers=headers)
@@ -62,11 +67,20 @@ def get_resources():
         new_images_links = list(set(filter(lambda url: url != None and url.lower().split(".")[-1] in ['jpg', 'jpeg', 'png', 'gif', 'tiff'],  [a.get('href') for a in soup.findAll("a")])))
         images.extend(new_images_links)
 
+        # Scrape all the text on the page
+        text = soup.get_text()
+        lines = (line.strip() for line in text.splitlines())
+
+        chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+# drop blank lines
+        text = ' '.join(chunk for chunk in chunks if chunk)
+        pages.append({ "text": text, "url": url })
+
         for link in links:
             crawl(link, depth + 1)
     crawl(url, 0)
     
-    return json.dumps({ "pdf_urls": list(set(pdfs)), "img_urls": list(set(images)) })
+    return json.dumps({ "pdf_urls": list(set(pdfs)), "img_urls": list(set(images)), "pages": pages })
 
     ## Crawl site for all images (need to work on filter) 
 
