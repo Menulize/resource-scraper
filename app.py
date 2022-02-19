@@ -41,7 +41,8 @@ def get_resources():
         
         try:
             page = requests.get(url, headers=headers)
-        except:
+        except Exception as e:
+            print(e)
             return
 
         soup = BeautifulSoup(page.content, "html.parser")
@@ -50,18 +51,17 @@ def get_resources():
         links = list(set(filter(
             lambda url: 
                 (url is not None and 
-                    'http' in url and 
-                    hostname in url) and 
+                    ('http' in url or "/" == url[0] or "./" == url[:2]) and 
+                    (hostname in url or "/" == url[0] or "./" == url[:2])) and 
                         ("." not in url.split("/")[-1] or 
                         ".html" in url or 
                         ".htm" in url or 
                         ".php" in url), links)))
-        
         new_pdfs = [a.get('href') for a in soup.findAll("a")]
         new_pdfs = list(set(filter(lambda url: url is not None and ".pdf" in url, new_pdfs)))
         pdfs.extend(new_pdfs)
         
-        new_images = list(set(filter(lambda url: url != None and "http" in url, [a.get('src') for a in soup.findAll("img")])))
+        new_images = list(set(filter(lambda url: url != None and ("http" in url or "/" == url[0] or "./" == url[:2]), [a.get('src') for a in soup.findAll("img")])))
         images.extend(new_images)
         
         new_images_links = list(set(filter(lambda url: url != None and url.lower().split(".")[-1] in ['jpg', 'jpeg', 'png', 'gif', 'tiff'],  [a.get('href') for a in soup.findAll("a")])))
@@ -77,6 +77,19 @@ def get_resources():
         pages.append({ "text": text, "url": url })
 
         for link in links:
+            relative = False
+            if link[0] == "/":
+                link = hostname + link
+                relative = True
+            elif link[:2] == "./":
+                link = hostname + "/" + link[2:]
+                relative = True
+            if relative:
+                if 'https' in url:
+                    link = 'https://' + link
+                else:
+                    link = 'http://' + link
+
             crawl(link, depth + 1)
     crawl(url, 0)
     
