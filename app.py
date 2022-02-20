@@ -68,7 +68,7 @@ def get_resources():
         hostname = url.split("//")[1].split("/")[0] 
         links = list(set(filter(
             lambda url: 
-                (url is not None and 
+                (url is not None and len(url) > 3 and 
                     ('http' in url or "/" == url[0] or "./" == url[:2]) and 
                     (hostname in url or "/" == url[0] or "./" == url[:2])) and 
                         ("." not in url.split("/")[-1] or 
